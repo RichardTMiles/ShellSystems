@@ -5,7 +5,9 @@
  *      Manages the file input and sends it one line at a time to the system.
  *      We will end up placing the pThread commands here
  */
+
 int batchMode(char* path) {
+
     printf("*** batch mode *** \n");
     // Opens file for reading and stores stream in batchFile
     FILE* input = fopen(path, "r");
@@ -28,10 +30,10 @@ int batchMode(char* path) {
 
     // 'fgets' reads a whole line into the buffer stopping at '\n'
 
-    while (fgets(SHELL, MAX_LENGTH, input)) { // This will iterate every line
+    while (fgets(SHELL, MAX_LENGTH, input)) {	 	// This will iterate every line
         if (SHELL[strlen(SHELL) - 1] == '\n') {
-            printf("\nBatch line> %s", SHELL);     // Print the line read
-            SendToSystem(SHELL);               // Execute each line of commands read in from batchFile
+            printf("\nBatch line> %s", SHELL);     	// Print the line read
+            SendToSystem(SHELL);               		// Execute each line of commands read in from batchFile
         } else {
             fprintf(stderr, "Error: Line must be less than 512 characters\n");
             fflush(stdout);

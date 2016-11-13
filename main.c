@@ -1,9 +1,9 @@
 // ========================================================================
-// Name:        Richard Miles,
+// Name:        Richard Miles, Bryan Adams, Steven Harris, Brashad Hasley
 // Course:		CSCE 3600
 // Date:		November 1, 2016
 // Title:		Major Assignment 1
-// Version:		16
+// Version:		17
 // Description:
 //          Implement a command line interpreter or shell.
 // Format:		shell [batchFile]
@@ -17,13 +17,16 @@
 
 #define MAX_LENGTH 513        // 512 + 1 for null
 
+#include "history.h"
+
 // Global variables
 char prompt[32] = "prompt>";                                // Default prompt
 char PATH[32] = "/bin/bash";                                // Default PATH directory
+struct histnode *head = NULL;
+struct histnode *tail = NULL;
 
 #include "system.c"
 #include "batchMode.c"
-
 
 int main(int argc, char *argv[]) {
 
@@ -45,6 +48,7 @@ int main(int argc, char *argv[]) {
 
         // Reads user input and handles Ctrl-D
         if (fgets(userInput, (MAX_LENGTH + 3), stdin) == NULL) {
+            printf("fgets returned NULL\n");
             putchar('\n');
             fflush(stdout);
             return EXIT_SUCCESS;
@@ -56,9 +60,23 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        SendToSystem(userInput);
+        //adding command to history
+        if(head == NULL){
+            head = (struct histnode *) malloc(sizeof(struct histnode));
+            strcpy(head->command, userInput);
+            tail = head;
+            tail->next = NULL;
+        }
+        else {
+            tail->next = (struct histnode *) malloc(sizeof(struct histnode));
+            tail = tail->next;
+            strcpy(tail->command, userInput);
+            tail->next = NULL;
+        }
 
+        SendToSystem(userInput);
     } while (1);
 
     return EXIT_SUCCESS;
 }
+

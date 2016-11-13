@@ -8,6 +8,7 @@
  *
  *
  */
+extern struct histnode *head;
 
 void SendToSystem(char *input);
 int runCommand(char command[]);
@@ -34,7 +35,6 @@ void SendToSystem(char *input) {
 }
 
 int runCommand(char command[]) {
-
     int option = 0;
 
     // Trims leading spaces
@@ -43,14 +43,16 @@ int runCommand(char command[]) {
     // Trims trailing spaces
     memmove(command, command + option, strlen(command) - option + 1);
 
+
     option = 0;
 
     if (strcmp(command, "") == 0) return 1;
-    else if (strcmp(command, "help") == 0) option = 1;
-    else if (strcmp(command, "quit") == 0) option = 2;
-    else if (strcmp(command, "cd") == 0)   option = 3;
-    else if (strcmp(command, "path") == 0) option = 4;
-    else if (strcmp(command, "prompt") == 0) option = 5;
+    else if (strcmp(command, "help\n") == 0) option = 1;
+    else if (strcmp(command, "quit\n") == 0) option = 2;
+    else if (strcmp(command, "cd\n") == 0)   option = 3;
+    else if (strcmp(command, "path\n") == 0) option = 4;
+    else if (strcmp(command, "prompt\n") == 0) option = 5;
+    else if (strcmp(command, "history\n") == 0) option = 6;
 
 
     switch (option) {
@@ -69,7 +71,7 @@ int runCommand(char command[]) {
             return 1;
 
         case 2: // Exits            -- need to test
-            return 0;
+            exit(0);
 
         case 3: // CD
             if (chdir(command + 3) != 0) {
@@ -105,11 +107,20 @@ int runCommand(char command[]) {
             printf("Prompt successfully updated\n");
             return 1;
 
+        case 6: //print from head
+            print(head);
+            break;
         default:
-            execl(PATH, "Shell", "-c", command, NULL);
-            fprintf(stderr, "Error: %s: Failed to execute\n", command);
-            _exit(EXIT_FAILURE);
+            printf("executing...\n");
+            if(fork() == 0){ //create child process and run command
+                if(execl(PATH, "Shell", "-c", command, NULL) == -1){
+                    fprintf(stderr, "Error: %s: Failed to execute\n", command);
+                    _exit(EXIT_FAILURE);
+                }
             return 1;
+            }
+            wait((int *)0);
     }     // Returns false if shell should exit successfully
 
 }
+
