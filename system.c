@@ -1,13 +1,11 @@
-//
-// Created by Richard Miles on 10/31/16.
-// Version: 3
-
-/*
- * This is the system file, there are three steps
- *
- *
- *
- */
+/*+=================================================================+
+  |FILE: SYSTEM.C 						    |
+  |DESC: System takes input(SendToSystem), sends to (runCMD) &      |
+  | proceds to run command allowing for multiple proceesses at once.|
+  |								    |
+  |VERSION: 3							    |					
+  +=================================================================+
+*/
 extern struct histnode *head;
 
 void SendToSystem(char *input);

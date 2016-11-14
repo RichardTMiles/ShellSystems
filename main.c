@@ -14,7 +14,7 @@
 #include <string.h>           // strncmp
 #include <unistd.h>           // execl
 #include <ctype.h>            // processes
-
+#include "history.h"	      // history.h  for history bonus.
 #define MAX_LENGTH 513        // 512 + 1 for null
 
 #include "history.h"
