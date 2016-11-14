@@ -14,10 +14,9 @@
 #include <string.h>           // strncmp
 #include <unistd.h>           // execl
 #include <ctype.h>            // processes
-#include "history.h"	      // history.h  for history bonus.
-#define MAX_LENGTH 513        // 512 + 1 for null
 
-#include "history.h"
+// Global Constants
+#define MAX_LENGTH 513        // 512 + 1 for null
 
 // Global variables
 char prompt[32] = "prompt>";                                // Default prompt
@@ -25,7 +24,8 @@ char PATH[32] = "/bin/bash";                                // Default PATH dire
 struct histnode *head = NULL;
 struct histnode *tail = NULL;
 
-#include "system.c"
+#include "history.h"	      // history.h  for history bonus.
+#include "system.c"           // for use with system files
 #include "batchMode.c"
 
 int main(int argc, char *argv[]) {
@@ -77,6 +77,5 @@ int main(int argc, char *argv[]) {
         SendToSystem(userInput);
     } while (1);
 
-    return EXIT_SUCCESS;
 }
 
