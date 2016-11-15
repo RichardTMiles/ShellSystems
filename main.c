@@ -95,7 +95,6 @@ int main(int argc, char *argv[]) {
         }
 
         SendToSystem(userInput);
-        printf("MAIN");
     } while (1);
 
 }

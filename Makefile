@@ -6,17 +6,5 @@
 #
 ########################################################################################
 
-CC=gcc 
-CFLAGS=-Wall -g
-
-all: program
-
-program: main.o system.o batchMode.o
-
-program.o: main.c system.c batchMode.c history.h 
-
-clean:
-	rm -f *.o
-
-run: program
-	./program
+program:  main.c system.c batchMode.c
+	gcc -o program main.c -pthread

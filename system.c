@@ -13,14 +13,14 @@ void SendToSystem(char *input);
 void *runCommand(void *idp);
 
 void SendToSystem(char *input) {
-    pthread_t array[6];                                  // no more that 6 cmds per line
-    pthread_mutex_init(&threading, NULL);                // were going to thread
-    char *split = strtok(input, ";");                  // Stores each command separated by ";"
+    pthread_t array[6];                          // no more that 6 cmds per line
+    pthread_mutex_init(&threading, NULL);        // were going to thread
+    char *split = strtok(input, ";");            // Stores each command separated by ";"
     int i = 0, option;
 
     while (split && !exitStatus) {
-        char *command = split;
         option = 0;
+        char *command = split;
         char *s = command + strlen(command);
         while (--s >= command) {
             if (!isspace(*s)) {
@@ -32,6 +32,8 @@ void SendToSystem(char *input) {
         while (command[option] != '\0' && isspace((unsigned char) command[option])) option++;
         memmove(command, command + option, strlen(command) - option + 1);
 
+        printf("command: %s \n", command);
+
         if (strcmp(command, "") != 0) {
             i++;
             pthread_t array[i];
@@ -40,23 +42,23 @@ void SendToSystem(char *input) {
         split = strtok(NULL, ";");
     }
 
-    printf("JOIN");
     while (i != 0) {
         pthread_cond_wait(&conditions, &threading);
         pthread_join(array[i], NULL);
         i--;
     }
-    printf("FOR");
+
     for(;;) {
         //pthread_cond_wait(&nextInput, &threading);
         break;
     }
-    printf("MAIN");
+
     return;
 
 }
 
 void *runCommand(void *idp) {
+    pthread_mutex_lock(&threading);
     int data[2];
     char *command = ((char *) idp);
 
@@ -69,8 +71,6 @@ void *runCommand(void *idp) {
     else if (strcmp(command, "path") == 0) option = 4;
     else if (strcmp(command, "prompt") == 0) option = 5;
     else if (strcmp(command, "history") == 0) option = 6;
-
-    pthread_mutex_lock(&threading);
 
     if (exitStatus == 0) {
         switch (option) {
