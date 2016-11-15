@@ -14,11 +14,23 @@
 #include <string.h>           // strncmp
 #include <unistd.h>           // execl
 #include <ctype.h>            // processes
+#include <pthread.h>          // Threads
 
 // Global Constants
 #define MAX_LENGTH 513        // 512 + 1 for null
+#define WRITE 1
+#define READ 0
+
+// Process Variables
+pthread_mutex_t threading = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  conditions = PTHREAD_COND_INITIALIZER;
+pthread_cond_t  nextInput = PTHREAD_COND_INITIALIZER;
+
+
+
 
 // Global variables
+int exitStatus = 0;
 char prompt[32] = "prompt>";                                // Default prompt
 char PATH[32] = "/bin/bash";                                // Default PATH directory
 struct histnode *head = NULL;
@@ -37,12 +49,19 @@ int main(int argc, char *argv[]) {
 
     if (argc == 2) { // Batch Mode Common Case First
         batchMode(argv[1]);
+        return 1;
     }
 
     // *** interactive mode ***
+    pthread_mutex_init(&threading, NULL);
+
+
+
     char userInput[MAX_LENGTH];                 // Stores string input by user
 
-    printf("*** interactive mode ***\n");
+    printf("** interactive mode ***\n"
+                   "--> type \"prompt\" at any time to change prompt\n"
+                   "--> type \"history\" at any time to display history");
     do {
         printf("\n%s ", prompt);
 
@@ -61,6 +80,7 @@ int main(int argc, char *argv[]) {
         }
 
         //adding command to history
+
         if(head == NULL){
             head = (struct histnode *) malloc(sizeof(struct histnode));
             strcpy(head->command, userInput);
@@ -75,6 +95,7 @@ int main(int argc, char *argv[]) {
         }
 
         SendToSystem(userInput);
+        printf("MAIN");
     } while (1);
 
 }
