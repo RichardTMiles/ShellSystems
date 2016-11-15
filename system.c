@@ -40,7 +40,7 @@ void SendToSystem(char *input) {
         split = strtok(NULL, ";");
     }
 
-    while (i != 0) {
+    while (i != 0 && running != 0) {
         pthread_cond_wait(&conditions, &threading);
         pthread_join(array[i], NULL);
         i--;
@@ -75,7 +75,6 @@ void *runCommand(void *idp) {
             case 1: // help
                         printf("|===== Commands ====|\n"
                                "|        help       |\n"
-                               "|         cd        |\n"
                                "|       history     |\n"
                                "|       prompt      |\n"
                                "|        path       |\n"
