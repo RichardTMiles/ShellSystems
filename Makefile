@@ -8,3 +8,5 @@
 
 program:  main.c system.c batchMode.c
 	gcc -o program main.c -pthread
+clean:
+	rm -f *.o
