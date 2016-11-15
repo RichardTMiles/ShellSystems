@@ -20,24 +20,22 @@ void SendToSystem(char *input) {
 
     while (split && !exitStatus) {
         option = 0;
-        char *command = split;
-        char *s = command + strlen(command);
-        while (--s >= command) {
+        char *cmd = split;
+        char *s = cmd + strlen(cmd);
+        while (--s >= cmd) {
             if (!isspace(*s)) {
                 break;
             }
             *s = 0;
         }
 
-        while (command[option] != '\0' && isspace((unsigned char) command[option])) option++;
-        memmove(command, command + option, strlen(command) - option + 1);
+        while (cmd[option] != '\0' && isspace((unsigned char) cmd[option])) option++;
+        memmove(cmd, cmd + option, strlen(cmd) - option + 1);
 
-        printf("command: %s \n", command);
-
-        if (strcmp(command, "") != 0) {
+        if (strcmp(cmd, "") != 0) {
             running++; i++;
             pthread_t array[i];
-            pthread_create(&array[i], NULL, runCommand, (void *) command);
+            pthread_create(&array[i], NULL, runCommand, (void *) cmd);
         }
         split = strtok(NULL, ";");
     }
@@ -51,6 +49,7 @@ void SendToSystem(char *input) {
     for (;;) {
         if (running == 0) {
             pthread_mutex_destroy(&threading);
+            if (exitStatus) { exit(1); }
             return;
         }
     }
