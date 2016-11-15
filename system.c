@@ -35,7 +35,7 @@ void SendToSystem(char *input) {
         printf("command: %s \n", command);
 
         if (strcmp(command, "") != 0) {
-            i++;
+            running++; i++;
             pthread_t array[i];
             pthread_create(&array[i], NULL, runCommand, (void *) command);
         }
@@ -48,13 +48,12 @@ void SendToSystem(char *input) {
         i--;
     }
 
-    for(;;) {
-        //pthread_cond_wait(&nextInput, &threading);
-        break;
+    for (;;) {
+        if (running == 0) {
+            pthread_mutex_destroy(&threading);
+            return;
+        }
     }
-
-    return;
-
 }
 
 void *runCommand(void *idp) {
@@ -63,8 +62,8 @@ void *runCommand(void *idp) {
     char *command = ((char *) idp);
 
     int option = 0;
-    if (strcmp(command, "") == 0) return idp;
-    else if (strcmp(command, " ") == 0) return idp;
+    if (strcmp(command, "") == 0) { running--; return idp; }
+    else if (strcmp(command, " ") == 0) { running--; return idp; }
     else if (strcmp(command, "help") == 0) option = 1;
     else if (strcmp(command, "quit") == 0) option = 2;
     else if (strcmp(command, "cd") == 0) option = 3;
@@ -86,15 +85,27 @@ void *runCommand(void *idp) {
                                "| quit OR exit  - exits shell program              |\n"
                                "\\--------------------------------------------------/\n");
 
+                pthread_cond_signal(&conditions);
+                pthread_mutex_unlock(&threading);
+                running--;
+                break;
+
             case 2: // Exits            -- need to test
                 exitStatus = 1;
-                exit(0);
+                pthread_cond_signal(&conditions);
+                pthread_mutex_unlock(&threading);
+                running--;
+                break;
 
             case 3: // CD
                 if (chdir(command + 3) != 0) {
                     fprintf(stderr, "Error: cd: Invalid directory\n");
                 } else { execl(PATH, "Shell", "-c", command, NULL); }
+                pthread_cond_signal(&conditions);
                 pthread_mutex_unlock(&threading);
+                running--;
+                break;
+
             case 4: // Path
                 do {
                     printf("Enter custom path: ");
@@ -107,8 +118,10 @@ void *runCommand(void *idp) {
                 } while (PATH[strlen(PATH) - 1] != '\n');
                 PATH[strcspn(PATH, "\n")] = '\0';              // Removes trailing '\n' from string
                 printf("PATH successfully updated\n");
+                pthread_cond_signal(&conditions);
                 pthread_mutex_unlock(&threading);
-
+                running--;
+                break;
             case 5: // prompt
                 do {
                     printf("Enter custom prompt: ");
@@ -121,10 +134,16 @@ void *runCommand(void *idp) {
                 } while (prompt[strlen(prompt) - 1] != '\n');
                 prompt[strcspn(prompt, "\n")] = '\0';          // Removes trailing '\n' from string
                 printf("Prompt successfully updated\n");
+                pthread_cond_signal(&conditions);
                 pthread_mutex_unlock(&threading);
+                running--;
+                break;
 
             case 6: //print from head
                 print(head);
+                pthread_cond_signal(&conditions);
+                pthread_mutex_unlock(&threading);
+                running--;
                 break;
 
             default:
@@ -153,9 +172,10 @@ void *runCommand(void *idp) {
                         printf("%s\n", message);
                         close(data[READ]);
                         pthread_cond_signal(&conditions);
+                        pthread_mutex_unlock(&threading);
+                        running--;
                         break;
                 }
-                pthread_mutex_unlock(&threading);
         }
     }
 }

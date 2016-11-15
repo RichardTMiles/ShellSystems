@@ -30,6 +30,7 @@ pthread_cond_t  nextInput = PTHREAD_COND_INITIALIZER;
 
 
 // Global variables
+int running = 0;
 int exitStatus = 0;
 char prompt[32] = "prompt>";                                // Default prompt
 char PATH[32] = "/bin/bash";                                // Default PATH directory
