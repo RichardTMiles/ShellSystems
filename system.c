@@ -73,16 +73,16 @@ void *runCommand(void *idp) {
     if (exitStatus == 0) {
         switch (option) {
             case 1: // help
-                printf("/------------------  Help Menu   -------------------\\\n"
-                               "| help          - Display the Help Menu            |\n"
-                               "| cd            - change current directory         |\n"
-                               "| history       - prints list of commands entered  |\n"
-                               "| prompt        - sets custom prompt string        |\n"
-                               "| customize     - sets customized shell options    |\n"
-                               "| path          - sets PATH directory              |\n"
-                               "| cd            - change current directory         |\n"
-                               "| quit OR exit  - exits shell program              |\n"
-                               "\\--------------------------------------------------/\n");
+                        printf("|===== Commands ====|\n"
+                               "|        help       |\n"
+                               "|         cd        |\n"
+                               "|       history     |\n"
+                               "|       prompt      |\n"
+                               "|      customize    |\n"
+                               "|        path       |\n"
+                               "|         cd        |\n"
+                               "|        quit       |\n"
+                               "+++++++++++++++++++++\n");
 
                 pthread_cond_signal(&conditions);
                 pthread_mutex_unlock(&threading);
