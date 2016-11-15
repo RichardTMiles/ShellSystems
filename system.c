@@ -78,7 +78,6 @@ void *runCommand(void *idp) {
                                "|         cd        |\n"
                                "|       history     |\n"
                                "|       prompt      |\n"
-                               "|      customize    |\n"
                                "|        path       |\n"
                                "|         cd        |\n"
                                "|        quit       |\n"
