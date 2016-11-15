@@ -15,53 +15,63 @@ void *runCommand(void *idp);
 void SendToSystem(char *input) {
     pthread_t array[6];                                  // no more that 6 cmds per line
     pthread_mutex_init(&threading, NULL);                // were going to thread
+    char *split = strtok(input, ";");                  // Stores each command separated by ";"
+    int i = 0, option;
 
-    int i = 0, output = 1;
-    char *command = strtok(input, ";");                  // Stores each command separated by ";"
+    while (split && !exitStatus) {
+        char *command = split;
+        option = 0;
+        char *s = command + strlen(command);
+        while (--s >= command) {
+            if (!isspace(*s)) {
+                break;
+            }
+            *s = 0;
+        }
 
-    while (command && !exitStatus) {
-        i++;
-        pthread_t array[i];
-        pthread_create(&array[i], NULL, runCommand, (void *) command);
-        command = strtok(NULL, ";");
+        while (command[option] != '\0' && isspace((unsigned char) command[option])) option++;
+        memmove(command, command + option, strlen(command) - option + 1);
+
+        if (strcmp(command, "") != 0) {
+            i++;
+            pthread_t array[i];
+            pthread_create(&array[i], NULL, runCommand, (void *) command);
+        }
+        split = strtok(NULL, ";");
     }
 
-    printf("JOIN - ");
+    printf("JOIN");
     while (i != 0) {
         pthread_cond_wait(&conditions, &threading);
-        printf("DONE WAIT");
         pthread_join(array[i], NULL);
-        printf(" JOIN \n");
         i--;
     }
-
+    printf("FOR");
+    for(;;) {
+        //pthread_cond_wait(&nextInput, &threading);
+        break;
+    }
+    printf("MAIN");
     return;
 
 }
 
 void *runCommand(void *idp) {
+    int data[2];
     char *command = ((char *) idp);
+
     int option = 0;
-
-    // Trims leading spaces
-    while (command[option] != '\0' && isspace((unsigned char) command[option])) option++;
-
-    // Trims trailing spaces
-    memmove(command, command + option, strlen(command) - option + 1);
-
-    printf("%s\n", command);
-
-    option = 0;
     if (strcmp(command, "") == 0) return idp;
     else if (strcmp(command, " ") == 0) return idp;
-    else if (strcmp(command, "help\n") == 0) option = 1;
-    else if (strcmp(command, "quit\n") == 0) option = 2;
-    else if (strcmp(command, "cd\n") == 0) option = 3;
-    else if (strcmp(command, "path\n") == 0) option = 4;
-    else if (strcmp(command, "prompt\n") == 0) option = 5;
-    else if (strcmp(command, "history\n") == 0) option = 6;
+    else if (strcmp(command, "help") == 0) option = 1;
+    else if (strcmp(command, "quit") == 0) option = 2;
+    else if (strcmp(command, "cd") == 0) option = 3;
+    else if (strcmp(command, "path") == 0) option = 4;
+    else if (strcmp(command, "prompt") == 0) option = 5;
+    else if (strcmp(command, "history") == 0) option = 6;
 
     pthread_mutex_lock(&threading);
+
     if (exitStatus == 0) {
         switch (option) {
             case 1: // help
@@ -118,14 +128,11 @@ void *runCommand(void *idp) {
                 break;
 
             default:
-                printf("Executing: %s\n", command);
-                char *Buffer;
-                int data[2];
                 pipe(data);
 
                 switch (fork()) {
                     case -1:
-                        perror("Fork");
+                        perror("Fork Error");
                         exit(2);
                     case 0: /* in child */
                         dup2(data[WRITE], 1);
@@ -136,6 +143,7 @@ void *runCommand(void *idp) {
                             fprintf(stderr, "Error: %s: Failed to execute\n", command);
                             _exit(EXIT_FAILURE);
                         }
+                        _exit(EXIT_FAILURE);
 
                     default: /* in parent */
                         close(data[WRITE]);
@@ -150,5 +158,4 @@ void *runCommand(void *idp) {
                 pthread_mutex_unlock(&threading);
         }
     }
-    return idp; // We should never reach this, but tit wil
 }
